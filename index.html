@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tugas 1 Grafika Komputer</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/gl-matrix@3/gl-matrix.js"></script>
+    </script>
+</head>
+<body onLoad="renderLine()">
+    <h3>Insert line coordinates</h3>
+    <form onSubmit="changeCoordinates(startX, startY, endX, endY)">
+        <label for="startX">Start point X:</label><br>
+        <input type="number" step=".0001", id="startX" name="startX"><br>
+        <label for="startY">Start point Y:</label><br>
+        <input type="number" step=".0001" id="startY" name="startY">
+        <br>
+        <br>
+        <label for="endX">End point X:</label><br>
+        <input type="number" step=".0001" id="endX" name="endX" ><br>
+        <label for="endY">End point Y:</label><br>
+        <input type="number" step=".0001" id="endY" name="endY">
+        <br>
+        <br>
+        <input type="submit" value="Apply">
+        <br>
+        <br>
+    </form> 
+      
+    <canvas id="glCanvas" width="640" height="480"></canvas>
+    <script src="line.js"></script>
+</body>
+</html>
+
