@@ -1,13 +1,13 @@
 import {findDistance} from './utility.js'
 
 var gl, program;
-var mouse = { x:0, y:0, down:false };
+var mouse = { x:0, y:0};
 var color = [0.0, 0.0, 1.0, 1];
-var vertices = [-0.4, -0.4, 0, 0.4, 0.4, 0];
+var vertices = [-1,-1,0,1,1,0,];
 var canvas = document.getElementById("glCanvas");
 
 window.onload = function init() {
-    var triangle = new Float32Array(
+    var line = new Float32Array(
         vertices);
 
     gl = canvas.getContext( "experimental-webgl" );
@@ -25,24 +25,25 @@ window.onload = function init() {
 
     var vbuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, triangle, gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, line, gl.STATIC_DRAW );
 
     var vPosition = gl.getAttribLocation(program, "vPosition"); 
-    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0); 
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0); 
     gl.enableVertexAttribArray(vPosition);
 
-    window.addEventListener("keydown", checkKeyPressed); 
+    window.addEventListener("click", checkKeyPressed); 
     
     requestAnimationFrame( render );
 }
 
 function render(time_ms) {
     setupMouse();
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     
     
     var colorLocation = gl.getUniformLocation(program, "u_color");
+    gl.viewport(0,0,canvas.width,canvas.height);
     gl.uniform4fv(colorLocation, color);
 
     gl.drawArrays(gl.LINES, 0, 2);
@@ -52,7 +53,7 @@ function render(time_ms) {
 
 
 function checkKeyPressed(e) {
-    if (e.keyCode == "84") {
+    // if (e.keyCode == "84") {
         console.log(mouse)
         if (findDistance(vertices[0],vertices[1],mouse.x,mouse.y)<findDistance(vertices[3],vertices[4],mouse.x,mouse.y)) {
             vertices[0] = mouse.x;
@@ -61,7 +62,7 @@ function checkKeyPressed(e) {
             vertices[3] = mouse.x;
             vertices[4] = mouse.y
         }
-    }
+    // }
 }
 
 function changeCoordinates(X1,Y1,X2,Y2) {
@@ -125,23 +126,8 @@ function setupMouse() {
         // mouse.x = (e.clientX - rectLeft) * cssScaleX;
         // mouse.y = (e.clientY - rectTop) * cssScaleY;
         mouse.x = (e.clientX/320)-1;
-        mouse.y = -(e.clientY/240)+1;
+        mouse.y = -((e.clientY/240)-1);
     }
-
-    window.addEventListener('mousedown', function (e) {
-        mouse.down = true;
-        handleMouseEvent(e);
-    });
-
-    window.addEventListener('mouseup', function (e) {
-        mouse.down = false;
-        handleMouseEvent(e);
-    });
-
-    window.addEventListener('mouseout', function (e) {
-        mouse.down = false;
-        handleMouseEvent(e);
-    });
 
     window.addEventListener('mousemove',  handleMouseEvent );
 };
