@@ -101,18 +101,20 @@ function renderLine() {
     // Clear the canvas
     gl.clearColor(0.5, 0.5, 0.5, 0.9);
     
-    // Enable the depth test
-    gl.enable(gl.DEPTH_TEST);
     
     // Clear the color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
-    // Set the view port
-    gl.viewport(0,0,canvas.width,canvas.height);
+
     
     // Draw the triangle
     gl.drawArrays(gl.LINES, 0, 2); // tulis nomor sesuai jumlah titik yang ada
     
-    // POINTS, LINE_STRIP, LINE_LOOP, LINES,
-    // TRIANGLE_STRIP,TRIANGLE_FAN, TRIANGLES
+}
+
+function render() {
+    // Clear the color and depth buffer
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+    // Draw the triangle
+    gl.drawArrays(gl.LINES, 0, 2); // tulis nomor sesuai jumlah titik yang ada
 }
