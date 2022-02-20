@@ -1,10 +1,18 @@
-import {findDistance} from './utility.js'
+import {findDistance, hexToRGBA, RGBAtoArray} from './utility.js'
 
 var gl, program;
 var mouse = { x:0, y:0};
-var color = [0.0, 0.0, 1.0, 1];
+var color = [0,0,0, 1.0];
 var vertices = [-1,-1,0,1,1,0,];
 var canvas = document.getElementById("glCanvas");
+
+document.getElementById("apply-color").addEventListener("click", getColors)
+
+function getColors(e) {
+    var input = document.getElementById("line-color").value;
+    color = hexToRGBA(input);
+    
+}
 
 window.onload = function init() {
     var line = new Float32Array(
@@ -54,13 +62,14 @@ function render(time_ms) {
 
 function checkKeyPressed(e) {
     // if (e.keyCode == "84") {
-        console.log(mouse)
-        if (findDistance(vertices[0],vertices[1],mouse.x,mouse.y)<findDistance(vertices[3],vertices[4],mouse.x,mouse.y)) {
-            vertices[0] = mouse.x;
-            vertices[1] = mouse.y
-        } else {
-            vertices[3] = mouse.x;
-            vertices[4] = mouse.y
+        if (mouse.x > -1 && mouse.x < 1 && mouse.y > -1 && mouse.y < 1) {
+            if (findDistance(vertices[0],vertices[1],mouse.x,mouse.y)<findDistance(vertices[3],vertices[4],mouse.x,mouse.y)) {
+                vertices[0] = mouse.x;
+                vertices[1] = mouse.y
+            } else {
+                vertices[3] = mouse.x;
+                vertices[4] = mouse.y
+            }
         }
     // }
 }
