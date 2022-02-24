@@ -156,13 +156,12 @@
          window.requestAnimationFrame(render);
       }
 
-      function makeShape() {
-         
-         function inputToPoint(shapes) {
-            shapes = shapes.split(" ").join().split("(").join("").split(")").join("").split(",");
-            return shapes;
-         }
+      function inputToPoint(shapes) {
+         shapes = shapes.split(" ").join().split("(").join("").split(")").join("").split(",");
+         return shapes;
+      }
 
+      function makeShape() {
          var points = document.getElementById("points").value;
          var color = document.getElementById("color").value;
          inputPoint = inputToPoint(points);
