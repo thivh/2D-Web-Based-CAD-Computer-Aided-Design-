@@ -29,14 +29,25 @@
       <label for="points">Points:</label><br>
       <textarea name="" id="points" cols="30" rows="10"></textarea><br><br>
       <label for="color">Color:</label>
-      <input type="color" id="color"><br><br>
+      <input type="color" id="color" value="#dddddd"><br><br>
       <input type="submit" id="submitBtn" value="Add"><br><br><br>
    </button>
    
    <script>
       var arrVert = [];
       var arrCol = [];
-      makeShape();
+      var canvas = document.getElementById('my_Canvas');
+      var gl = canvas.getContext('experimental-webgl');
+      var shaderProgram = makeProgram();
+      gl.clearColor(0, 0, 0, 1);
+      gl.enable(gl.DEPTH_TEST);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.viewport(0,0,canvas.width,canvas.height);
+      var vertex_buffer = gl.createBuffer();
+      var color_buffer = gl.createBuffer();
+      render();
+
+
       document.getElementById("my_Canvas").onmousedown = function (e) {
          changeColor(e);
       }
@@ -56,12 +67,16 @@
          for(let i = 0;i < arrVert.length;i++) {
             for(let j = 0;j< arrVert[i].length;j=j+2) {
                if(getDistance(x,y,arrVert[i][j],arrVert[i][j+1]) < 0.05) {
-                  arrCol[i] = hexToRgb(document.getElementById("color").value);
+                  for(let k=0;k<arrCol[i].length;k=k+3) {
+                     arrCol[i][k] = hexToRgb(document.getElementById("color").value)[0];
+                     arrCol[i][k+1] = hexToRgb(document.getElementById("color").value)[1];
+                     arrCol[i][k+2] = hexToRgb(document.getElementById("color").value)[2];
+                  }
+                  
                   break;
                }
             }
          }
-         makeShape();
 
       }
 
@@ -78,8 +93,68 @@
             2: parseInt(result[3], 16) / 255
          } : null;
 
-      
-}
+      }
+
+      function makeProgram() {
+
+         var shaderProgram = gl.createProgram();
+         var vertCode = document.getElementById("vertex-shader").text;
+         var fragCode = document.getElementById("fragment-shader").text;
+
+         var vertShader = gl.createShader(gl.VERTEX_SHADER);
+         gl.shaderSource(vertShader, vertCode);
+         gl.compileShader(vertShader);
+
+         
+         var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+         gl.shaderSource(fragShader, fragCode);
+         gl.compileShader(fragShader);
+
+         gl.attachShader(shaderProgram, vertShader);
+         gl.attachShader(shaderProgram, fragShader);
+         gl.linkProgram(shaderProgram);
+         return shaderProgram;
+      }
+
+      function render() {
+         gl.clearColor(0, 0, 0, 1);
+         gl.enable(gl.DEPTH_TEST);
+         gl.clear(gl.COLOR_BUFFER_BIT);
+         gl.viewport(0,0,canvas.width,canvas.height);
+
+         for (let i = 0; i < arrVert.length; i++) {
+            var vertices = arrVert[i];
+            var color = arrCol[i];
+            var nPoint = arrVert[i].length / 2;
+         
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color), gl.STATIC_DRAW);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+            gl.useProgram(shaderProgram);
+
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+            var coord = gl.getAttribLocation(shaderProgram, "coordinates");
+            gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(coord);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+            var color = gl.getAttribLocation(shaderProgram, "color");
+            gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(color);
+            
+            gl.drawArrays(gl.TRIANGLE_FAN, 0, nPoint);
+         }
+         
+         window.requestAnimationFrame(render);
+      }
 
       function makeShape() {
          
@@ -88,8 +163,6 @@
             return shapes;
          }
 
-         var canvas = document.getElementById('my_Canvas');
-         var gl = canvas.getContext('experimental-webgl');
          var points = document.getElementById("points").value;
          var color = document.getElementById("color").value;
          inputPoint = inputToPoint(points);
@@ -103,70 +176,8 @@
             colVertex.push(dummy[2]);
          }
          arrCol.push(colVertex);
-         console.log(inputPoint);
-         console.log(arrCol);
+
          
-         var shaderProgram = gl.createProgram();
-         gl.clearColor(0, 0, 0, 1);
-         gl.enable(gl.DEPTH_TEST);
-         gl.clear(gl.COLOR_BUFFER_BIT);
-         gl.viewport(0,0,canvas.width,canvas.height);
-
-         for (let i = 0; i < arrVert.length; i++) {
-            var vertices = arrVert[i];
-            var color = arrCol[i];
-            var nPoint = arrVert[i].length / 2;
-         
-            var vertex_buffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-            var color_buffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color), gl.STATIC_DRAW);
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-   
-            var vertCode = document.getElementById("vertex-shader").text;
-            var fragCode = document.getElementById("fragment-shader").text;
-
-            var vertShader = gl.createShader(gl.VERTEX_SHADER);
-            gl.shaderSource(vertShader, vertCode);
-            gl.compileShader(vertShader);
-
-            
-            var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
-            gl.shaderSource(fragShader, fragCode);
-            gl.compileShader(fragShader);
-
-            gl.attachShader(shaderProgram, vertShader);
-            gl.attachShader(shaderProgram, fragShader);
-            gl.linkProgram(shaderProgram);
-            gl.useProgram(shaderProgram);
-
-            
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-            var coord = gl.getAttribLocation(shaderProgram, "coordinates");
-            gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(coord);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-            var color = gl.getAttribLocation(shaderProgram, "color");
-            gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(color);
-
-            
-            gl.drawArrays(gl.TRIANGLE_FAN, 0, nPoint);
-            
-            gl.detachShader(shaderProgram, vertShader);
-            gl.detachShader(shaderProgram, fragShader);
-            gl.deleteShader(vertShader);
-            gl.deleteShader(fragShader); 
-            
-         }
-         
-         // window.requestAnimationFrame(makeShape);
       }
 
    </script>
