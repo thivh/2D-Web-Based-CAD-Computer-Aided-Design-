@@ -63,3 +63,16 @@ export function makeVerticeArray(pointsArr) {
     return verticeArr
 }
 
+export function isVerticeValid(vertice) {
+    var valid = true;
+    var i = 0
+    while(valid && i < vertice.length) {
+        if (vertice[i] < -1 || vertice[i] > 1) {
+            valid = false;
+        }
+        i++
+    }
+
+    return valid
+}
+

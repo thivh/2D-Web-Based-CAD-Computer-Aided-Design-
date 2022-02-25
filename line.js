@@ -1,4 +1,4 @@
-import {findDistance, hexToRGBA, IsInRadius, inputToPoint, makePointsArray, makeVerticeArray} from './utility.js'
+import {findDistance, hexToRGBA, IsInRadius, inputToPoint, makePointsArray, makeVerticeArray, isVerticeValid} from './utility.js'
 
 var gl, program;
 var totalPoints = 2;
@@ -20,9 +20,10 @@ function changeCoordinates(e) {
     var input = document.getElementById("line-points").value;
     if (input !== null) {
         var newVertices = makeVerticeArray(makePointsArray(inputToPoint(input)))
-        console.log(newVertices)
-        vertices = newVertices
-        totalPoints = makePointsArray(inputToPoint(input)).length
+        if (isVerticeValid) {
+            vertices = newVertices
+            totalPoints = makePointsArray(inputToPoint(input)).length
+        }
     }
 }
 
