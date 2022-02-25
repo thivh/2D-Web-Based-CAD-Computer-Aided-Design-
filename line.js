@@ -1,120 +1,160 @@
-var canvas = document.getElementById('glCanvas');
-var gl = canvas.getContext('experimental-webgl');
+import {findDistance, hexToRGBA, IsInRadius, inputToPoint, makePointsArray, makeVerticeArray} from './utility.js'
 
-startX = -0.8
-startY = -0.8
-endX = -0.3
-endY = 0.6
+var gl, program;
+var mouse = { x:0, y:0, choose: false};
+var color = [0,0,0, 1.0];
+var vertices = [-1,-1,0,1,1,0,];
+var canvas = document.getElementById("glCanvas");
 
-/*======= Defining and storing the geometry ======*/
-function changeCoordinates(X1,Y1,X2,Y2) {
-    startX = X1
-    startY = Y1
-    endX = X2
-    endY = Y2
+document.getElementById("apply-color").addEventListener("click", getColors)
+document.getElementById("change-line-points").addEventListener("click", changeCoordinates)
+
+function getColors(e) {
+    var input = document.getElementById("line-color").value;
+    color = hexToRGBA(input);
+    
 }
 
-function renderLine() {
-    var vertices = [
-    startX,startY,0, 
-    endX,endY,0
-    ]
+function changeCoordinates(e) {
+    var input = document.getElementById("line-points").value;
+    if (input !== null) {
+        var newVertices = makeVerticeArray(makePointsArray(inputToPoint(input)))
+        console.log(newVertices)
+        vertices = newVertices
+    }
+}
+
+window.onload = function init() {
+    var line = new Float32Array(
+        vertices);
+
+    gl = canvas.getContext( "experimental-webgl" );
+    if (!gl) { alert("WebGL isn’t available"); }
+
+
+    gl.viewport(0, 0, canvas.width, canvas.height); 
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+
+    program = initShaders(gl, "vertex-shader", "fragment-shader"); 
+    gl.useProgram(program);
+
+    var colorLocation = gl.getUniformLocation(program, "u_color");
+    gl.uniform4fv(colorLocation, color);
+
+    var vbuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, line, gl.STATIC_DRAW );
+
+    var vPosition = gl.getAttribLocation(program, "vPosition"); 
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0); 
+    gl.enableVertexAttribArray(vPosition);
+
+    window.addEventListener("click", checkKeyPressed); 
     
-    
-    // Create an empty buffer object
-    var vertex_buffer = gl.createBuffer();
-    
-    // Bind appropriate array buffer to it
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-    
-    // Pass the vertex data to the buffer
+    requestAnimationFrame( render );
+}
+
+function render(time_ms) {
+    setupMouse();
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     
-    // Unbind the buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
     
-    /*=================== Shaders ====================*/
-    
-    // Vertex shader source code
-    var vertCode =
-    'attribute vec3 coordinates;' +
-    'void main(void) {' +
-        ' gl_Position = vec4(coordinates, 1.0);' +
-    '}';
-    
-    // Create a vertex shader object
-    var vertShader = gl.createShader(gl.VERTEX_SHADER);
-    
-    // Attach vertex shader source code
-    gl.shaderSource(vertShader, vertCode);
-    
-    // Compile the vertex shader
-    gl.compileShader(vertShader);
-    
-    // Fragment shader source code
-    var fragCode =
-    'void main(void) {' +
-        'gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);' +
-    '}';
-    
-    // Create fragment shader object
-    var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
-    
-    // Attach fragment shader source code
-    gl.shaderSource(fragShader, fragCode);
-    
-    // Compile the fragmentt shader
-    gl.compileShader(fragShader);
-    
-    // Create a shader program object to store
-    // the combined shader program
-    var shaderProgram = gl.createProgram();
-    
-    // Attach a vertex shader
-    gl.attachShader(shaderProgram, vertShader);
-    
-    // Attach a fragment shader
-    gl.attachShader(shaderProgram, fragShader);
-    
-    // Link both the programs
-    gl.linkProgram(shaderProgram);
-    
-    // Use the combined shader program object
-    gl.useProgram(shaderProgram);
-    
-    /*======= Associating shaders to buffer objects ======*/
-    
-    // Bind vertex buffer object
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-    
-    // Get the attribute location
-    var coord = gl.getAttribLocation(shaderProgram, "coordinates");
-    
-    // Point an attribute to the currently bound VBO
-    gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
-    
-    // Enable the attribute
-    gl.enableVertexAttribArray(coord);
-    
-    /*============ Drawing the triangle =============*/
-    
-    // Clear the canvas
-    gl.clearColor(0.5, 0.5, 0.5, 0.9);
-    
-    
-    // Clear the color and depth buffer
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    var colorLocation = gl.getUniformLocation(program, "u_color");
+    gl.viewport(0,0,canvas.width,canvas.height);
+    gl.uniform4fv(colorLocation, color);
 
-    
-    // Draw the triangle
-    gl.drawArrays(gl.LINES, 0, 2); // tulis nomor sesuai jumlah titik yang ada
-    
+    gl.drawArrays(gl.LINES, 0, 2);
+    gl.drawArrays(gl.POINTS, 0, 2);
+
+    requestAnimationFrame( render );
 }
 
-function render() {
-    // Clear the color and depth buffer
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
-    // Draw the triangle
-    gl.drawArrays(gl.LINES, 0, 2); // tulis nomor sesuai jumlah titik yang ada
+
+function checkKeyPressed(e) {
+    // if (e.keyCode == "84") {
+    if (e instanceof MouseEvent) {
+        console.log(mouse)
+        var i = 0;
+        if (mouse.x > -1.2 && mouse.x < 1.2 && mouse.y > -1.2 && mouse.y < 1.2) {
+            if (mouse.choose !== false) {
+                vertices[mouse.choose] = mouse.x
+                vertices[mouse.choose+1] = mouse.y
+                mouse.choose = false
+                i = 0;
+            } else {
+                while (i < vertices.length && mouse.choose == false) {
+                    if ((IsInRadius(vertices[i],vertices[i+1],mouse.x,mouse.y))) {
+                        mouse.choose = i
+                    }
+                    i = i + 3;
+                }
+                
+            }
+        }
+    }
+
+    // }
 }
+
+
+function initShaders(gl, vertexShaderId, fragmentShaderId) {
+		var vertShdr;
+		var fragShdr;
+
+		var vertElem = document.getElementById(vertexShaderId);
+		if (!vertElem) {
+				alert("Unable to load vertex shader " + vertexShaderId);
+				return -1;
+		} else {
+				vertShdr = gl.createShader(gl.VERTEX_SHADER);
+				gl.shaderSource(vertShdr, vertElem.text);
+				gl.compileShader(vertShdr);
+				if (!gl.getShaderParameter(vertShdr, gl.COMPILE_STATUS)) {
+						var msg = "Vertex shader failed to compile.  The error log is:" + "<pre>" + gl.getShaderInfoLog(vertShdr) + "</pre>";
+						alert(msg);
+						console.log(msg);
+						return -1;
+				}
+		}
+
+		var fragElem = document.getElementById(fragmentShaderId);
+		if (!fragElem) {
+				alert("Unable to load vertex shader " + fragmentShaderId);
+				return -1;
+		} else {
+				fragShdr = gl.createShader(gl.FRAGMENT_SHADER);
+				gl.shaderSource(fragShdr, fragElem.text);
+				gl.compileShader(fragShdr);
+				if (!gl.getShaderParameter(fragShdr, gl.COMPILE_STATUS)) {
+						var msg = "Fragment shader failed to compile.  The error log is:" + "<pre>" + gl.getShaderInfoLog(fragShdr) + "</pre>";
+						alert(msg);
+						console.log(msg);
+						return -1;
+				}
+		}
+
+		var program = gl.createProgram();
+		gl.attachShader(program, vertShdr);
+		gl.attachShader(program, fragShdr);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+				var msg = "Shader program failed to link.  The error log is:" + "<pre>" + gl.getProgramInfoLog(program) + "</pre>";
+				alert(msg);
+				console.log(msg);
+				return -1;
+		}
+
+		return program;
+}
+
+function setupMouse() {
+
+    function handleMouseEvent(e) {
+        mouse.x = (e.clientX/320)-1;
+        mouse.y = -((e.clientY/240)-1);
+    }
+
+    window.addEventListener('mousemove',  handleMouseEvent );
+};

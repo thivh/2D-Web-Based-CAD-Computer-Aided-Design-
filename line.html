@@ -11,6 +11,7 @@
     
         void main() {
            gl_Position = vPosition;
+           gl_PointSize = 10.0;
         }
     </script>
     <script id="fragment-shader" type="x-shader/x-fragment">
@@ -29,10 +30,13 @@
         <button id="apply-color">Apply</button>
     </div>
     <div>
-        <button id="new-point">Add new point</button>
-        <button id="new-line">Add new line</button>
+        <label for="line-points">Insert points</label><br>
+        <textarea name="line-points" id="line-points" cols="30" rows="3"></textarea><br>
+        <button id="change-line-points">Submit</button>
     </div>
-    <script type="module" src="line2.js"></script>
+    <div>
+    </div>
+    <script type="module" src="line.js"></script>
 </body>
 </html>
 

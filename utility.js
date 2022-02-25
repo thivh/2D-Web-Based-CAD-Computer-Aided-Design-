@@ -21,3 +21,45 @@ export function hexToRGBA(hex){
     }
     throw new Error('Bad Hex');
 }
+export function IsInRadius(X1,Y1,X2,Y2) {
+    return (Math.abs(X1 - X2) <= 0.2) && (Math.abs(Y1-Y2) <= 0.2)
+}
+
+export function inputToPoint(shapes) {
+    shapes = shapes.split(" ").join().split("(").join("").split(")").join("").split(",");
+    return shapes;
+}
+
+export function makePointsArray(points) {
+    var counter = 0
+    var arrPoints = []
+    var temp = []
+    for (var i = 0; i < points.length; i++) {
+        if (counter == 2) {
+            arrPoints.push(temp)
+            counter = 0
+            temp = []
+        } 
+        temp.push(points[i])
+        counter++
+    }
+    arrPoints.push(temp)
+
+    return arrPoints
+}
+
+export function makeVerticeArray(pointsArr) {
+    var verticeArr = []
+    for (var i = 0; i < pointsArr.length; i++) {
+        for (var j = 0; j < pointsArr[i].length; j++) {
+            verticeArr.push(parseFloat(pointsArr[i][j]))
+        }
+        verticeArr.push(0)
+    }
+
+    console.log(verticeArr)
+
+
+    return verticeArr
+}
+
