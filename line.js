@@ -1,6 +1,7 @@
 import {findDistance, hexToRGBA, IsInRadius, inputToPoint, makePointsArray, makeVerticeArray} from './utility.js'
 
 var gl, program;
+var totalPoints = 2;
 var mouse = { x:0, y:0, choose: false};
 var color = [0,0,0, 1.0];
 var vertices = [-1,-1,0,1,1,0,];
@@ -21,6 +22,7 @@ function changeCoordinates(e) {
         var newVertices = makeVerticeArray(makePointsArray(inputToPoint(input)))
         console.log(newVertices)
         vertices = newVertices
+        totalPoints = makePointsArray(inputToPoint(input)).length
     }
 }
 
@@ -64,8 +66,8 @@ function render(time_ms) {
     gl.viewport(0,0,canvas.width,canvas.height);
     gl.uniform4fv(colorLocation, color);
 
-    gl.drawArrays(gl.LINES, 0, 2);
-    gl.drawArrays(gl.POINTS, 0, 2);
+    gl.drawArrays(gl.LINE_STRIP, 0, totalPoints);
+    gl.drawArrays(gl.POINTS, 0, totalPoints);
 
     requestAnimationFrame( render );
 }
