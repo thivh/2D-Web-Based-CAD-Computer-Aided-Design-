@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body onload="init()">
+    <canvas id="canvas" width="640" height="480"></canvas>
+</body>
+
+<script id="shaderVs" type="x-shader/x-vertex">
+    attribute vec3 aPosition;
+    void main() {
+        gl_Position =  vec4(a_Position, 1.0);
+    }
+</script>
+
+<script id="shaderFs" type="x-shader/x-fragment">
+    precision mediump float;
+    uniform vec4 uFragColor;
+    void main() {
+        gl_FragColor = u_FragColor;
+    }
+</script>
+
+<script>
+    function makeShader(gl, src, type) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, src);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert("Shader compile failed: " + gl.getShaderInfoLog(shader));
+            return;
+        }
+        return shader;
+    }
+
+    
+    function initVertexBuffers(gl) {
+        var dimension = 2; 
+        var vertices = new Float32Array([
+        -0.5, 0.5, 0.5, 0.5, 0.5, -0.5,     // Triangle 1
+            -0.5, 0.5, 0.5, -0.5, -0.5, -0.5 // Triangle 2 
+        ]);
+
+        // Fragment color
+        var rgba = [0.0, 0.0, 0.0, 1.0];
+
+        // Create a buffer object
+        var vertexBuffer = gl.createBuffer();
+        if (!vertexBuffer) {
+            alert('Failed to create the buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+        // Assign vertices in buffer object to a_Position
+        var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+        if (a_Position < 0) {
+            alert('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        gl.vertexAttribPointer(a_Position, dimension, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(a_Position);
+
+        // Assign color
+        var u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
+        if (u_FragColor < 0) {
+            alert('Failed to get the storage location of u_FragColor');
+            return -1;
+        }
+        gl.uniform4fv(u_FragColor, rgba);
+
+        return vertices.length / dimension;
+    }
+
+    function initShaders(gl, vs_source, fs_source) {
+        // Compile shaders
+        var vertexShader = makeShader(gl, vs_source, gl.VERTEX_SHADER);
+        var fragmentShader = makeShader(gl, fs_source, gl.FRAGMENT_SHADER);
+
+        var glProgram = gl.createProgram();
+
+        // Attach shaders to program
+        gl.attachShader(glProgram, vertexShader);
+        gl.attachShader(glProgram, fragmentShader);
+        gl.linkProgram(glProgram);
+        if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+            alert("Unable to initialize the shader program");
+            return false;
+        }
+        else{
+            gl.useProgram(glProgram);
+            gl.program = glProgram;
+
+            return true;
+        }
+    }
+
+///////////////////////
+
+    function init() {
+        var canvas = document.getElementById("canvas");
+
+        //Context
+        var gl = canvas.getContext("webgl");
+        if (!gl) {
+            alert("Render context failed");
+            return;
+        }
+
+        // Init shaders
+        var vs = document.getElementById('shaderVs').innerHTML;
+        var fs = document.getElementById('shaderFs').innerHTML;
+        if (!initShaders(gl, vs, fs)) {
+            alert('Shaders initialize failed.');
+            return;
+        }
+
+        var n = initVertexBuffers(gl);
+        if (n < 0) {
+            alert('Vertices position failed to set');
+            return;
+        }
+
+        // Clear canvas & draw
+        gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.drawArrays(gl.TRIANGLES, 0, n);
+    }
+
+</script>
+
+</html>

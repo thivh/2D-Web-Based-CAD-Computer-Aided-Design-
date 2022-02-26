@@ -32,7 +32,7 @@ window.onload = function init() {
         vertices);
 
     gl = canvas.getContext( "experimental-webgl" );
-    if (!gl) { alert("WebGL isn’t available"); }
+    if (!gl) { console.log("WebGL isn’t available"); }
 
 
     gl.viewport(0, 0, canvas.width, canvas.height); 
@@ -107,7 +107,7 @@ function initShaders(gl, vertexShaderId, fragmentShaderId) {
 
 		var vertElem = document.getElementById(vertexShaderId);
 		if (!vertElem) {
-				alert("Unable to load vertex shader " + vertexShaderId);
+				console.log("Unable to load vertex shader " + vertexShaderId);
 				return -1;
 		} else {
 				vertShdr = gl.createShader(gl.VERTEX_SHADER);
@@ -115,7 +115,7 @@ function initShaders(gl, vertexShaderId, fragmentShaderId) {
 				gl.compileShader(vertShdr);
 				if (!gl.getShaderParameter(vertShdr, gl.COMPILE_STATUS)) {
 						var msg = "Vertex shader failed to compile.  The error log is:" + "<pre>" + gl.getShaderInfoLog(vertShdr) + "</pre>";
-						alert(msg);
+						console.log(msg);
 						console.log(msg);
 						return -1;
 				}
@@ -123,7 +123,7 @@ function initShaders(gl, vertexShaderId, fragmentShaderId) {
 
 		var fragElem = document.getElementById(fragmentShaderId);
 		if (!fragElem) {
-				alert("Unable to load vertex shader " + fragmentShaderId);
+				console.log("Unable to load vertex shader " + fragmentShaderId);
 				return -1;
 		} else {
 				fragShdr = gl.createShader(gl.FRAGMENT_SHADER);
@@ -131,7 +131,7 @@ function initShaders(gl, vertexShaderId, fragmentShaderId) {
 				gl.compileShader(fragShdr);
 				if (!gl.getShaderParameter(fragShdr, gl.COMPILE_STATUS)) {
 						var msg = "Fragment shader failed to compile.  The error log is:" + "<pre>" + gl.getShaderInfoLog(fragShdr) + "</pre>";
-						alert(msg);
+						console.log(msg);
 						console.log(msg);
 						return -1;
 				}
@@ -144,7 +144,7 @@ function initShaders(gl, vertexShaderId, fragmentShaderId) {
 
 		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 				var msg = "Shader program failed to link.  The error log is:" + "<pre>" + gl.getProgramInfoLog(program) + "</pre>";
-				alert(msg);
+				console.log(msg);
 				console.log(msg);
 				return -1;
 		}
