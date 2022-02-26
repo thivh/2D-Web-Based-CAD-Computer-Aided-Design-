@@ -14,6 +14,7 @@
       void main() {
         gl_Position = vec4(coordinates, 0.0, 1.0);
         vColor = color;
+        gl_PointSize = 10.0;
       }
    </script>
    <script id="fragment-shader-polygon" type="notjs">
@@ -25,55 +26,47 @@
          gl_FragColor = vec4(vColor,1);
       }
   </script>
-  <script id="vertex-shader-line" type="x-shader/x-vertex">
-      attribute vec4 vPosition;
-
-      void main() {
-         gl_Position = vPosition;
-         gl_PointSize = 10.0;
-      }
-   </script>
-  <script id="fragment-shader-line" type="x-shader/x-fragment">
-      precision mediump float;
-      uniform vec4 u_color;
-      void main() {
-         gl_FragColor = u_color;
-      }
-   </script>
 </head>
 
 <body>
    <canvas width="800" height="500" id="my_Canvas"></canvas>
-   <div>
-      <label for="line-color">Change line color</label>
-      <input type="color" id="line-color" name="line-color">
-      <button id="apply-color">Apply</button>
-  </div>
   <div>
-      <label for="line-points">Insert points</label><br>
-      <textarea name="line-points" id="line-points" cols="30" rows="3"></textarea><br>
-      <button id="change-line-points">Submit</button>
+     <button id="form">
+        <label for="points">Insert polygon points:</label><br>
+        <textarea name="" id="points" cols="30" rows="7"></textarea><br><br>
+        <label for="color">Choose polygon color:</label>
+        <input type="color" id="color"><br><br>
+        <input type="submit" id="submitBtn" value="Add"><br><br><br>
+      </button>
   </div>
-  <div>
-  </div>
-  <button id="form">
-     <label for="points">Insert polygon points:</label><br>
-     <textarea name="" id="points" cols="30" rows="7"></textarea><br><br>
-     <label for="color">Choose polygon color:</label>
-     <input type="color" id="color"><br><br>
-     <input type="submit" id="submitBtn" value="Add"><br><br><br>
-   </button>
    
    <!-- <script type="module" src="line.js"></script> -->
    <script>
-      function changeColor(e) {
-         var canvas = document.getElementById('my_Canvas');
+     function IsInRadius(X1,Y1,X2,Y2) {
+      return (Math.abs(X1 - X2) <= 0.2) && (Math.abs(Y1-Y2) <= 0.2)
+   }
+      function getMouseCoordinates(e) {
          var x    = e.clientX;
          var y    = e.clientY;
          var rect = e.target.getBoundingClientRect();
 
          x = (2*(x - rect.left) - canvas.width) / canvas.width;
          y = (canvas.height - 2*(y - rect.top)) / canvas.height;
+
+         return [x,y]
+      }
+
+      function changeColor(e) {
+         var canvas = document.getElementById('my_Canvas');
+         // var x    = e.clientX;
+         // var y    = e.clientY;
+         // var rect = e.target.getBoundingClientRect();
+
+         // x = (2*(x - rect.left) - canvas.width) / canvas.width;
+         // y = (canvas.height - 2*(y - rect.top)) / canvas.height;
+
+         var x = getMouseCoordinates(e)[0]
+         var y = getMouseCoordinates(e)[1]
 
          for(let i = 0;i < arrVert.length;i++) {
             for(let j = 0;j< arrVert[i].length;j=j+2) {
@@ -90,6 +83,8 @@
          }
 
       }
+
+      
 
       function getDistance(x1,y1,x2,y2) {
          return Math.sqrt(Math.pow(x1-x2,2) + Math.pow(y1-y2,2));
@@ -132,6 +127,53 @@
 		   }
          return shaderProgram;
       }
+
+      function changeCoordinates(e, mouse, arrVert) {
+        var i = 0;
+        var j = 0;
+
+        if (mouse.x > -1.2 && mouse.x < 1.2 && mouse.y > -1.2 && mouse.y < 1.2) {
+            if (mouse.choose !== false) {
+                arrVert[mouse.idx][mouse.choose] = mouse.x
+                arrVert[mouse.idx][mouse.choose+1] = mouse.y
+                mouse.choose = false
+                mouse.idx = -1
+                mouse.x = -1
+                mouse.y = -1
+
+                i = 0;
+                j = 0;
+            } else {
+                while (i < arrVert.length && mouse.choose == false) {
+                   j = 0;
+                   while (j < arrVert[i].length && mouse.choose == false) {
+                      console.log(arrVert[i][j])
+                      console.log(IsInRadius(arrVert[i][j],arrVert[i][j+1],mouse.x,mouse.y))
+                      if (IsInRadius(arrVert[i][j],arrVert[i][j+1],mouse.x,mouse.y)) {
+                          mouse.choose = j;
+                          mouse.idx = i
+                      }
+                      j = j + 2;
+
+                   }
+                   i = i + 1
+                }
+                
+            }
+        }
+    }
+
+    function getMouseLocation(mouse, e) {
+      var x    = e.clientX;
+      var y    = e.clientY;
+      var rect = e.target.getBoundingClientRect();
+
+       mouse.x = (2*(x - rect.left) - canvas.width) / canvas.width;
+       mouse.y = (canvas.height - 2*(y - rect.top)) / canvas.height;
+    }
+
+
+ 
 
       function render() {
          gl.clearColor(1.0, 1.0, 1.0, 1.0);
@@ -176,6 +218,7 @@
             else {
                gl.drawArrays(gl.TRIANGLE_STRIP, 0, nPoint);
             }
+            gl.drawArrays(gl.POINTS, 0, nPoint);
          }
          
          window.requestAnimationFrame(render);
@@ -205,6 +248,7 @@
          
       }
 
+      var mouse = {idx: -1, choose: false, x: -1, y: -1}
       var arrVert = [];
       var arrCol = [];
       var canvas = document.getElementById('my_Canvas');
@@ -221,12 +265,17 @@
 
 
       document.getElementById("my_Canvas").onmousedown = function (e) {
+         console.log(mouse)
          changeColor(e);
+         changeCoordinates(e, mouse, arrVert)
       }
       document.getElementById("submitBtn").onclick = function () {
          makeShape();
       };
 
+      document.getElementById("my_Canvas").onmousemove = function (e) {
+         getMouseLocation(mouse, e)
+      }
 
    </script>
 </body>
