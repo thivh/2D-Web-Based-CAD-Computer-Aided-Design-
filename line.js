@@ -33,7 +33,7 @@ function changeCoordinates(e) {
     }
 }
 
-window.onload = function init() {
+function init() {
     var line = new Float32Array(
         vertices);
 

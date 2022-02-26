@@ -64,7 +64,7 @@
      <input type="submit" id="submitBtn" value="Add"><br><br><br>
    </button>
    
-   <script type="module" src="line.js"></script>
+   <!-- <script type="module" src="line.js"></script> -->
    <script>
       function changeColor(e) {
          var canvas = document.getElementById('my_Canvas');
@@ -167,10 +167,19 @@
             gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(color);
             
-            gl.drawArrays(gl.TRIANGLE_FAN, 0, nPoint);
+            if(nPoint == 1) {
+               gl.drawArrays(gl.POINTS, 0, nPoint);
+            }
+            else if(nPoint == 2) {
+               gl.drawArrays(gl.LINE_STRIP, 0, nPoint);
+            }
+            else {
+               gl.drawArrays(gl.TRIANGLE_STRIP, 0, nPoint);
+            }
          }
          
          window.requestAnimationFrame(render);
+         
       }
 
       function inputToPoint(shapes) {
