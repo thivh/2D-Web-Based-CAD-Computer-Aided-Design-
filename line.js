@@ -3,16 +3,22 @@ import {findDistance, hexToRGBA, IsInRadius, inputToPoint, makePointsArray, make
 var gl, program;
 var totalPoints = 2;
 var mouse = { x:0, y:0, choose: false};
-var color = [0,0,0, 1.0];
+var lineColor = [0,0,0, 1.0];
 var vertices = [-1,-1,0,1,1,0,];
-var canvas = document.getElementById("glCanvas");
+var canvas = document.getElementById("my_Canvas");
+
+gl = canvas.getContext( "experimental-webgl" );
+if (!gl) { alert("WebGL isn’t available"); }
+
+program = initShaders(gl, "vertex-shader-line", "fragment-shader-line");
+
 
 document.getElementById("apply-color").addEventListener("click", getColors)
 document.getElementById("change-line-points").addEventListener("click", changeCoordinates)
 
 function getColors(e) {
     var input = document.getElementById("line-color").value;
-    color = hexToRGBA(input);
+    lineColor = hexToRGBA(input);
     
 }
 
@@ -31,18 +37,14 @@ window.onload = function init() {
     var line = new Float32Array(
         vertices);
 
-    gl = canvas.getContext( "experimental-webgl" );
-    if (!gl) { alert("WebGL isn’t available"); }
+    gl.useProgram(program);
 
 
     gl.viewport(0, 0, canvas.width, canvas.height); 
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
-    program = initShaders(gl, "vertex-shader", "fragment-shader"); 
-    gl.useProgram(program);
-
     var colorLocation = gl.getUniformLocation(program, "u_color");
-    gl.uniform4fv(colorLocation, color);
+    gl.uniform4fv(colorLocation, lineColor);
 
     var vbuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
@@ -65,7 +67,7 @@ function render(time_ms) {
     
     var colorLocation = gl.getUniformLocation(program, "u_color");
     gl.viewport(0,0,canvas.width,canvas.height);
-    gl.uniform4fv(colorLocation, color);
+    gl.uniform4fv(colorLocation, lineColor);
 
     gl.drawArrays(gl.LINE_STRIP, 0, totalPoints);
     gl.drawArrays(gl.POINTS, 0, totalPoints);
@@ -155,8 +157,8 @@ function initShaders(gl, vertexShaderId, fragmentShaderId) {
 function setupMouse() {
 
     function handleMouseEvent(e) {
-        mouse.x = (e.clientX/320)-1;
-        mouse.y = -((e.clientY/240)-1);
+        mouse.x = (e.clientX/400)-1;
+        mouse.y = -((e.clientY/250)-1);
     }
 
     window.addEventListener('mousemove',  handleMouseEvent );
