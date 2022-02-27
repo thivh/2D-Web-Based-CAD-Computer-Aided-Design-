@@ -1,19 +1,23 @@
 <!doctype html>
 <html>
-
-   <script id="vertex-shader" type="notjs">
+<head>
+   <meta charset="utf-8">
+   <title>Tugas 1 Grafika Komputer</title>
+   <link rel="stylesheet" href="line.css" type="text/css">
+   <script src="https://cdn.jsdelivr.net/npm/gl-matrix@3/gl-matrix.js"></script>
+   </script>
+   <script id="vertex-shader-polygon" type="notjs">
       attribute vec2 coordinates;
       attribute vec3 color;
       varying vec3 vColor;
 
       void main() {
         gl_Position = vec4(coordinates, 0.0, 1.0);
-
         vColor = color;
+        gl_PointSize = 10.0;
       }
    </script>
-
-   <script id="fragment-shader" type="notjs">
+   <script id="fragment-shader-polygon" type="notjs">
       precision mediump float;
 
       varying vec3 vColor;
@@ -22,47 +26,65 @@
          gl_FragColor = vec4(vColor,1);
       }
   </script>
+  <style>
+      .flex-container {
+        display: flex;
+        background-color: #f1f1f1;
+      }
+      
+      .flex-container > div {
+        background-color: #f1f1f1;
+        margin: 10px;
+        padding: 20px;
+      }
+      </style>
+</head>
 
 <body>
-   <canvas width="800" height="600" id="my_Canvas"></canvas>
-   <button id="form">
-      <label for="points">Points:</label><br>
-      <textarea name="" id="points" cols="30" rows="10"></textarea><br><br>
-      <label for="color">Color:</label>
-      <input type="color" id="color" value="#dddddd"><br><br>
-      <input type="submit" id="submitBtn" value="Add"><br><br><br>
-   </button>
+   <div class="flex-container">
+         <canvas width="800" height="500" id="my_Canvas"></canvas>
+
+         <div>
+               <button id="form">
+                  <label for="points">Insert polygon points:</label><br>
+                  <textarea name="" id="points" cols="30" rows="7"></textarea><br><br>
+                  <label for="color">Choose polygon color:</label>
+                  <input type="color" id="color"><br><br>
+                  <input type="submit" id="submitBtn" value="Add"><br><br><br>
+                </button>
+                <BR>
+                  <BR>
+                <div>Mode</div>
+                <input type="radio" name="myRadioButton" value="Line Strip">Line Strip<BR>
+                <input type="radio" name="myRadioButton" value="Line Loop">Line Loop<BR>
+                <input type="radio" name="myRadioButton" value="Triangle Strip">Triangle Strip (Only for three or more points) <BR>
+                <input type="radio" name="myRadioButton" value="Triangle Fan">Triangle Fan  (Only for three or more points) <BR>
+
+          
+            </div>
+   </div>
+ 
    
+   <!-- <script type="module" src="line.js"></script> -->
    <script>
-      var arrVert = [];
-      var arrCol = [];
-      var canvas = document.getElementById('my_Canvas');
-      var gl = canvas.getContext('experimental-webgl');
-      var shaderProgram = makeProgram();
-      gl.clearColor(0, 0, 0, 1);
-      gl.enable(gl.DEPTH_TEST);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.viewport(0,0,canvas.width,canvas.height);
-      var vertex_buffer = gl.createBuffer();
-      var color_buffer = gl.createBuffer();
-      render();
-
-
-      document.getElementById("my_Canvas").onmousedown = function (e) {
-         changeColor(e);
-      }
-      document.getElementById("submitBtn").onclick = function () {
-         makeShape();
-      };
-
-      function changeColor(e) {
-         var canvas = document.getElementById('my_Canvas');
+     function IsInRadius(X1,Y1,X2,Y2) {
+      return (Math.abs(X1 - X2) <= 0.2) && (Math.abs(Y1-Y2) <= 0.2)
+   }
+      function getMouseCoordinates(e) {
          var x    = e.clientX;
          var y    = e.clientY;
          var rect = e.target.getBoundingClientRect();
 
          x = (2*(x - rect.left) - canvas.width) / canvas.width;
          y = (canvas.height - 2*(y - rect.top)) / canvas.height;
+
+         return [x,y]
+      }
+
+      function changeColor(e) {
+         var canvas = document.getElementById('my_Canvas');
+         var x = getMouseCoordinates(e)[0]
+         var y = getMouseCoordinates(e)[1]
 
          for(let i = 0;i < arrVert.length;i++) {
             for(let j = 0;j< arrVert[i].length;j=j+2) {
@@ -79,6 +101,24 @@
          }
 
       }
+
+      function changeType(e) {
+         var canvas = document.getElementById('my_Canvas');
+         var x = getMouseCoordinates(e)[0]
+         var y = getMouseCoordinates(e)[1]
+
+         for(let i = 0;i < arrVert.length;i++) {
+            for(let j = 0;j< arrVert[i].length;j=j+2) {
+               if(getDistance(x,y,arrVert[i][j],arrVert[i][j+1]) < 0.05) {
+                  arrType[i] = getRadioButtonValue();
+                  break;
+               }
+            }
+         }
+
+      }
+
+      
 
       function getDistance(x1,y1,x2,y2) {
          return Math.sqrt(Math.pow(x1-x2,2) + Math.pow(y1-y2,2));
@@ -98,8 +138,8 @@
       function makeProgram() {
 
          var shaderProgram = gl.createProgram();
-         var vertCode = document.getElementById("vertex-shader").text;
-         var fragCode = document.getElementById("fragment-shader").text;
+         var vertCode = document.getElementById("vertex-shader-polygon").text;
+         var fragCode = document.getElementById("fragment-shader-polygon").text;
 
          var vertShader = gl.createShader(gl.VERTEX_SHADER);
          gl.shaderSource(vertShader, vertCode);
@@ -113,11 +153,64 @@
          gl.attachShader(shaderProgram, vertShader);
          gl.attachShader(shaderProgram, fragShader);
          gl.linkProgram(shaderProgram);
+         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+				var msg = "Shader program failed to link.  The error log is:" + "<pre>" + gl.getProgramInfoLog(shaderProgram) + "</pre>";
+				alert(msg);
+				console.log(msg);
+				return -1;
+		   }
          return shaderProgram;
       }
 
+      function changeCoordinates(e, mouse, arrVert) {
+        var i = 0;
+        var j = 0;
+
+        if (mouse.x > -1.2 && mouse.x < 1.2 && mouse.y > -1.2 && mouse.y < 1.2) {
+            if (mouse.choose !== false) {
+                arrVert[mouse.idx][mouse.choose] = mouse.x
+                arrVert[mouse.idx][mouse.choose+1] = mouse.y
+                mouse.choose = false
+                mouse.idx = -1
+                mouse.x = -1
+                mouse.y = -1
+
+                i = 0;
+                j = 0;
+            } else {
+                while (i < arrVert.length && mouse.choose == false) {
+                   j = 0;
+                   while (j < arrVert[i].length && mouse.choose == false) {
+                      console.log(arrVert[i][j])
+                      console.log(IsInRadius(arrVert[i][j],arrVert[i][j+1],mouse.x,mouse.y))
+                      if (IsInRadius(arrVert[i][j],arrVert[i][j+1],mouse.x,mouse.y)) {
+                          mouse.choose = j;
+                          mouse.idx = i
+                      }
+                      j = j + 2;
+
+                   }
+                   i = i + 1
+                }
+                
+            }
+        }
+    }
+
+    function getMouseLocation(mouse, e) {
+      var x    = e.clientX;
+      var y    = e.clientY;
+      var rect = e.target.getBoundingClientRect();
+
+       mouse.x = (2*(x - rect.left) - canvas.width) / canvas.width;
+       mouse.y = (canvas.height - 2*(y - rect.top)) / canvas.height;
+    }
+
+
+ 
+
       function render() {
-         gl.clearColor(0, 0, 0, 1);
+         gl.clearColor(1.0, 1.0, 1.0, 1.0);
          gl.enable(gl.DEPTH_TEST);
          gl.clear(gl.COLOR_BUFFER_BIT);
          gl.viewport(0,0,canvas.width,canvas.height);
@@ -126,6 +219,7 @@
             var vertices = arrVert[i];
             var color = arrCol[i];
             var nPoint = arrVert[i].length / 2;
+            var type = arrType[i];
          
             
             gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
@@ -150,10 +244,27 @@
             gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(color);
             
-            gl.drawArrays(gl.TRIANGLE_FAN, 0, nPoint);
+            if(nPoint ==2){
+               gl.drawArrays(gl.LINE_STRIP, 0, nPoint);
+            }
+            else {
+               if (type === 'Line Strip')
+                  gl.drawArrays(gl.LINE_STRIP, 0, nPoint);
+               else if (type === 'Triangle Strip')
+                  gl.drawArrays(gl.TRIANGLE_STRIP, 0, nPoint);
+               else if (type === 'Line Loop')
+                  gl.drawArrays(gl.LINE_LOOP, 0, nPoint);
+               else if (type === 'Triangle Loop')
+                  gl.drawArrays(gl.TRIANGLE_FAN, 0, nPoint);
+               else {
+                  gl.drawArrays(gl.TRIANGLE_FAN, 0, nPoint);
+               }
+            }
+            gl.drawArrays(gl.POINTS, 0, nPoint);
          }
          
          window.requestAnimationFrame(render);
+         
       }
 
       function inputToPoint(shapes) {
@@ -175,10 +286,50 @@
             colVertex.push(dummy[2]);
          }
          arrCol.push(colVertex);
-
-         
+         var type = getRadioButtonValue();
+         arrType.push(type);
       }
 
+      var mouse = {idx: -1, choose: false, x: -1, y: -1}
+      var arrVert = [];
+      var arrCol = [];
+      var arrType = [];
+      var canvas = document.getElementById('my_Canvas');
+      var gl = canvas.getContext('experimental-webgl');
+      var shaderProgram = makeProgram();
+
+      gl.clearColor(1.0, 1.0, 1.0, 1.0);
+      gl.enable(gl.DEPTH_TEST);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.viewport(0,0,canvas.width,canvas.height);
+      var vertex_buffer = gl.createBuffer();
+      var color_buffer = gl.createBuffer();
+      render();
+
+
+      document.getElementById("my_Canvas").onmousedown = function (e) {
+         console.log(mouse)
+         changeColor(e);
+         changeCoordinates(e, mouse, arrVert);
+         changeType(e);
+      }
+      document.getElementById("submitBtn").onclick = function () {
+         makeShape();
+      };
+
+      document.getElementById("my_Canvas").onmousemove = function (e) {
+         getMouseLocation(mouse, e)
+      }
+
+      function getRadioButtonValue() {
+         var list = document.getElementsByName('myRadioButton');
+         for(var i=0;i<list.length;i++){
+            if(list[i].checked){
+               return list[i].value;
+            }
+         }
+         return "";
+      }
    </script>
 </body>
 
