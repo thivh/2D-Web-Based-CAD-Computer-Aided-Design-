@@ -9,3 +9,18 @@ canvas {
 video {
 	display: none;
 }
+
+.side-container {
+	display: flex;
+	margin-left: 1.5rem;
+}
+
+#form {
+	border: solid 2px black;
+	padding: 1rem;
+	margin-right: .5rem;
+}
+
+ol {
+	margin-left: 1rem;
+}

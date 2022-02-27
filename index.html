@@ -44,21 +44,43 @@
    <div class="flex-container">
          <canvas width="800" height="500" id="my_Canvas"></canvas>
 
-         <div>
-               <button id="form">
-                  <label for="points">Insert polygon points:</label><br>
-                  <textarea name="" id="points" cols="30" rows="7"></textarea><br><br>
-                  <label for="color">Choose polygon color:</label>
-                  <input type="color" id="color"><br><br>
-                  <input type="submit" id="submitBtn" value="Add"><br><br><br>
-                </button>
-                <BR>
-                  <BR>
-                <div>Mode</div>
-                <input type="radio" name="myRadioButton" value="Line Strip">Line Strip<BR>
-                <input type="radio" name="myRadioButton" value="Line Loop">Line Loop<BR>
-                <input type="radio" name="myRadioButton" value="Triangle Strip">Triangle Strip (Only for three or more points) <BR>
-                <input type="radio" name="myRadioButton" value="Triangle Fan">Triangle Fan  (Only for three or more points) <BR>
+         <div class="side-container">
+            <div id="form">
+               <label for="points">Insert polygon points:</label><br>
+               <textarea name="" id="points" cols="30" rows="7"></textarea><br><br>
+               <label for="color">Choose polygon color:</label>
+               <input type="color" id="color"><br><br>
+               <div>Mode</div>
+               <input type="radio" name="myRadioButton" value="Line Strip">Line Strip<BR>
+               <input type="radio" name="myRadioButton" value="Line Loop">Line Loop<BR>
+               <input type="radio" name="myRadioButton" value="Triangle Strip">Triangle Strip (Only for three or more points) <BR>
+               <input type="radio" name="myRadioButton" value="Triangle Fan">Triangle Fan  (Only for three or more points)
+               <br>
+               <br>
+               <input type="submit" id="submitBtn" value="Add"><br><br><br>
+            </div>
+            <div class="side-elements">
+               <div>
+                  <h3>How to use "Shape Drawer"</h3>
+                  <hr>
+                  <br>
+                  <ol>
+                     <li>Insert points of your shape with the format (X1, Y1),(X2,Y2),...,(Xn,Yn)</li>
+                     <li>Pick a color for your shape.</li>
+                     <li>Choose a drawing method. Pick "Line Strip" or "Line Points" for drawing lines and "Triangle Strip" or "Triangle Fan" for drawing polygons.</li>
+                     <li>Click the "Add" button to draw your shape into the canvas.</li>
+                  </ol>
+               </div>
+               <br>
+               <div>
+                  <h3>Import file</h3>
+                  <hr>
+                  <br>
+                  <input type="file" id="shape-upload" name="shape">
+                  <br><br>
+                  <input type="submit" id="shape-upload-btn">
+               </div>
+            </div>
 
           
             </div>
