@@ -83,13 +83,6 @@
 
       function changeColor(e) {
          var canvas = document.getElementById('my_Canvas');
-         // var x    = e.clientX;
-         // var y    = e.clientY;
-         // var rect = e.target.getBoundingClientRect();
-
-         // x = (2*(x - rect.left) - canvas.width) / canvas.width;
-         // y = (canvas.height - 2*(y - rect.top)) / canvas.height;
-
          var x = getMouseCoordinates(e)[0]
          var y = getMouseCoordinates(e)[1]
 
@@ -102,6 +95,22 @@
                      arrCol[i][k+2] = hexToRgb(document.getElementById("color").value)[2];
                   }
                   
+                  break;
+               }
+            }
+         }
+
+      }
+
+      function changeType(e) {
+         var canvas = document.getElementById('my_Canvas');
+         var x = getMouseCoordinates(e)[0]
+         var y = getMouseCoordinates(e)[1]
+
+         for(let i = 0;i < arrVert.length;i++) {
+            for(let j = 0;j< arrVert[i].length;j=j+2) {
+               if(getDistance(x,y,arrVert[i][j],arrVert[i][j+1]) < 0.05) {
+                  arrType[i] = getRadioButtonValue();
                   break;
                }
             }
@@ -210,6 +219,7 @@
             var vertices = arrVert[i];
             var color = arrCol[i];
             var nPoint = arrVert[i].length / 2;
+            var type = arrType[i];
          
             
             gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
@@ -234,21 +244,21 @@
             gl.vertexAttribPointer(color, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(color);
             
-            if(nPoint == 1) {
-               gl.drawArrays(gl.POINTS, 0, nPoint);
-            }
-            else if(nPoint ==2){
+            if(nPoint ==2){
                gl.drawArrays(gl.LINE_STRIP, 0, nPoint);
             }
             else {
-               if (getRadioButtonValue() === 'Line Strip')
+               if (type === 'Line Strip')
                   gl.drawArrays(gl.LINE_STRIP, 0, nPoint);
-               else if (getRadioButtonValue() === 'Triangle Strip')
+               else if (type === 'Triangle Strip')
                   gl.drawArrays(gl.TRIANGLE_STRIP, 0, nPoint);
-               else if (getRadioButtonValue() === 'Line Loop')
+               else if (type === 'Line Loop')
                   gl.drawArrays(gl.LINE_LOOP, 0, nPoint);
-               else if (getRadioButtonValue() === 'Triangle Loop')
+               else if (type === 'Triangle Loop')
                   gl.drawArrays(gl.TRIANGLE_FAN, 0, nPoint);
+               else {
+                  gl.drawArrays(gl.TRIANGLE_FAN, 0, nPoint);
+               }
             }
             gl.drawArrays(gl.POINTS, 0, nPoint);
          }
@@ -276,13 +286,14 @@
             colVertex.push(dummy[2]);
          }
          arrCol.push(colVertex);
-
-         
+         var type = getRadioButtonValue();
+         arrType.push(type);
       }
 
       var mouse = {idx: -1, choose: false, x: -1, y: -1}
       var arrVert = [];
       var arrCol = [];
+      var arrType = [];
       var canvas = document.getElementById('my_Canvas');
       var gl = canvas.getContext('experimental-webgl');
       var shaderProgram = makeProgram();
@@ -299,7 +310,8 @@
       document.getElementById("my_Canvas").onmousedown = function (e) {
          console.log(mouse)
          changeColor(e);
-         changeCoordinates(e, mouse, arrVert)
+         changeCoordinates(e, mouse, arrVert);
+         changeType(e);
       }
       document.getElementById("submitBtn").onclick = function () {
          makeShape();
@@ -310,13 +322,14 @@
       }
 
       function getRadioButtonValue() {
-      var list = document.getElementsByName('myRadioButton');
-      for(var i=0;i<list.length;i++){
-         if(list[i].checked){
-            return list[i].value;
+         var list = document.getElementsByName('myRadioButton');
+         for(var i=0;i<list.length;i++){
+            if(list[i].checked){
+               return list[i].value;
+            }
          }
+         return "";
       }
-}
    </script>
 </body>
 
