@@ -106,33 +106,32 @@
             </div>
    </div>
  
-   
-   <!-- <script type="module" src="line.js"></script> -->
    <script>
-function getFile(event) {
-	const input = event.target
-  if ('files' in input && input.files.length > 0) {
-	  placeFileContent(
-      document.getElementById('content-target'),
-      input.files[0])
-  }
-}
+   function getFile(event) {
+      const input = event.target
+      if ('files' in input && input.files.length > 0) {
+         placeFileContent(
+            document.getElementById('content-target'),
+            input.files[0])
+      }
+   }
 
-function placeFileContent(target, file) {
-	readFileContent(file).then(content => {
-  	target.value = content
+   function placeFileContent(target, file) {
+      readFileContent(file).then(content => {
+         target.value = content
 
-  }).catch(error => console.log(error))
-}
+      }).catch(error => console.log(error))
+   }
 
-function readFileContent(file) {
-	const reader = new FileReader()
-  return new Promise((resolve, reject) => {
-    reader.onload = event => resolve(event.target.result)
-    reader.onerror = error => reject(error)
-    reader.readAsText(file)
-  })
-}
+   function readFileContent(file) {
+      const reader = new FileReader()
+      return new Promise((resolve, reject) => {
+         reader.onload = event => resolve(event.target.result)
+         reader.onerror = error => reject(error)
+         reader.readAsText(file)
+      })
+   }
+
      function IsInRadius(X1,Y1,X2,Y2) {
       return (Math.abs(X1 - X2) <= 0.05) && (Math.abs(Y1-Y2) <= 0.05)
    }
@@ -184,12 +183,9 @@ function readFileContent(file) {
 
       }
 
-      
-
       function getDistance(x1,y1,x2,y2) {
          return Math.sqrt(Math.pow(x1-x2,2) + Math.pow(y1-y2,2));
       }
-
 
       function hexToRgb(hex) {
          var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -198,7 +194,6 @@ function readFileContent(file) {
             1: parseInt(result[2], 16) / 255,
             2: parseInt(result[3], 16) / 255
          } : null;
-
       }
 
       function makeProgram() {
@@ -245,24 +240,21 @@ function readFileContent(file) {
                 j = 0;
             } else {
                 while (i < arrVert.length && mouse.choose == false) {
-                   j = 0;
-                   while (j < arrVert[i].length && mouse.choose == false) {
-                      console.log(arrVert[i][j])
-                      console.log(IsInRadius(arrVert[i][j],arrVert[i][j+1],mouse.x,mouse.y))
-                      if (IsInRadius(arrVert[i][j],arrVert[i][j+1],mouse.x,mouse.y)) {
-                          mouse.choose = j;
-                          mouse.idx = i
-                      }
-                      j = j + 2;
-
-                   }
-                   i = i + 1
-                }
-                
+                  j = 0;
+                  while (j < arrVert[i].length && mouse.choose == false) {
+                     //  console.log(arrVert[i][j])
+                     //  console.log(IsInRadius(arrVert[i][j],arrVert[i][j+1],mouse.x,mouse.y))
+                     if (IsInRadius(arrVert[i][j],arrVert[i][j+1],mouse.x,mouse.y)) {
+                     mouse.choose = j;
+                     mouse.idx = i
+                     }
+                     j = j + 2;
+                  }
+                  i = i + 1
+                }     
             }
         }
     }
-
 
     function getMouseLocation(mouse, e) {
       var x    = e.clientX;
@@ -273,13 +265,7 @@ function readFileContent(file) {
        mouse.y = (canvas.height - 2*(y - rect.top)) / canvas.height;
     }
 
-
- 
-
       function render() {
-         console.log(arrCol)
-         console.log(arrVert)
-         console.log(arrType)
          gl.clearColor(1.0, 1.0, 1.0, 1.0);
          gl.enable(gl.DEPTH_TEST);
          gl.clear(gl.COLOR_BUFFER_BIT);
@@ -345,7 +331,6 @@ function readFileContent(file) {
                shapes[i][j] = shapes[i][j].split("\n").join().split("(").join("").split(")").join("").split(",");
             }
          }
-         console.log(shapes);
          return shapes;
       }
 
@@ -374,10 +359,6 @@ function readFileContent(file) {
                arrType.push(inputPoint[i][2][0]);
             }
          }
-         console.log(arrVert);
-         console.log(arrCol);
-         console.log(arrType);
-         console.log(inputPoint);
       }
 
       function getRadioButtonValue() {
@@ -390,23 +371,6 @@ function readFileContent(file) {
          return "";
       }
 
-      // function saveDataToFile() {
-      //    var fileName = String(Date.now()) + ".txt";
-      //    content = "";
-      //    for(let i=0;i<arrVert.length;i++) {
-      //       content += String(arrVert[i]).replace("[", "(").replace("]", ")") + ";";
-      //       content += String(arrCol[i]).replace("[", "(").replace("]", ")") + ";";
-      //       content += "(" + arrType[i] + ")";
-      //       if(i != (arrVert.length - 1)) {
-      //          content += "//"
-      //       }
-            
-      //    }
-      //    var blob = new Blob([content],
-      //          { type: "text/plain;charset=utf-8" },fileName);
-      //    var link = window.URL.createObjectURL(blob);
-      //    window.location=link;
-      // }
       function save(filename, data) {
          const blob = new Blob([data], {type: 'text/csv'});
          if(window.navigator.msSaveOrOpenBlob) {
@@ -440,7 +404,7 @@ function readFileContent(file) {
 
 
       document.getElementById("my_Canvas").onmousedown = function (e) {
-         console.log(mouse)
+         // console.log(mouse)
          changeColor(e);
          changeCoordinates(e, mouse, arrVert);
          changeType(e);
