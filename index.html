@@ -4,8 +4,6 @@
    <meta charset="utf-8">
    <title>Tugas 1 Grafika Komputer</title>
    <link rel="stylesheet" href="line.css" type="text/css">
-   <script src="https://cdn.jsdelivr.net/npm/gl-matrix@3/gl-matrix.js"></script>
-   </script>
    <script id="vertex-shader-polygon" type="notjs">
       attribute vec2 coordinates;
       attribute vec3 color;
@@ -100,7 +98,8 @@
                      <br>
                      <p>Color</p>
                      <label for="color">Choose polygon color:</label>
-                     <input type="color" id="color"><br><br>
+                     <input type="color" id="color"><br><br><br><br>
+                     <input type="submit" id="saveBtn" value="Save Design">
             </div>
 
           
@@ -336,25 +335,88 @@ function readFileContent(file) {
       }
 
       function inputToPoint(shapes) {
-         shapes = shapes.split(" ").join().split("(").join("").split(")").join("").split(",");
+         shapes = shapes.split("//")
+         for(let i=0;i<shapes.length;i++) {
+            shapes[i] = shapes[i].split(";");
+            for(let j=0;j<shapes[i].length;j++) {
+               shapes[i][j] = shapes[i][j].split("\n").join().split("(").join("").split(")").join("").split(",");
+            }
+         }
+         console.log(shapes);
          return shapes;
       }
 
       function makeShape(points) {
-         var color = document.getElementById("color").value;
          inputPoint = inputToPoint(points);
-         var colVertex = [];
-         var dummy = hexToRgb(color);
 
-         arrVert.push(inputPoint);
-         for(let i=0;i<inputPoint.length;i++) {
-            colVertex.push(dummy[0]);
-            colVertex.push(dummy[1]);
-            colVertex.push(dummy[2]);
+         if(inputPoint[0].length == 1) {
+            var color = document.getElementById("color").value;
+            var colVertex = [];
+            var dummy = hexToRgb(color);
+
+            arrVert.push(inputPoint[0][0]);
+            for(let i=0;i<inputPoint[0][0].length;i++) {
+               colVertex.push(dummy[0]);
+               colVertex.push(dummy[1]);
+               colVertex.push(dummy[2]);
+            }
+            arrCol.push(colVertex);
+            var type = getRadioButtonValue();
+            arrType.push(type);
          }
-         arrCol.push(colVertex);
-         var type = getRadioButtonValue();
-         arrType.push(type);
+         else{
+            for(let i=0;i<inputPoint.length;i++) {
+               arrVert.push(inputPoint[i][0]);
+               arrCol.push(inputPoint[i][1]);
+               arrType.push(inputPoint[i][2][0]);
+            }
+         }
+         console.log(arrVert);
+         console.log(arrCol);
+         console.log(arrType);
+         console.log(inputPoint);
+      }
+
+      function getRadioButtonValue() {
+         var list = document.getElementsByName('myRadioButton');
+         for(var i=0;i<list.length;i++){
+            if(list[i].checked){
+               return list[i].value;
+            }
+         }
+         return "";
+      }
+
+      // function saveDataToFile() {
+      //    var fileName = String(Date.now()) + ".txt";
+      //    content = "";
+      //    for(let i=0;i<arrVert.length;i++) {
+      //       content += String(arrVert[i]).replace("[", "(").replace("]", ")") + ";";
+      //       content += String(arrCol[i]).replace("[", "(").replace("]", ")") + ";";
+      //       content += "(" + arrType[i] + ")";
+      //       if(i != (arrVert.length - 1)) {
+      //          content += "//"
+      //       }
+            
+      //    }
+      //    var blob = new Blob([content],
+      //          { type: "text/plain;charset=utf-8" },fileName);
+      //    var link = window.URL.createObjectURL(blob);
+      //    window.location=link;
+      // }
+      function save(filename, data) {
+         const blob = new Blob([data], {type: 'text/csv'});
+         if(window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveBlob(blob, filename);
+         }
+         else{
+            const elem = window.document.createElement('a');
+            elem.href = window.URL.createObjectURL(blob);
+            elem.download = filename;        
+            document.body.appendChild(elem);
+            elem.click();        
+            document.body.removeChild(elem);
+         }
       }
 
       var mouse = {idx: -1, choose: false, x: -1, y: -1}
@@ -398,15 +460,24 @@ function readFileContent(file) {
          makeShape(points)
       }
 
-      function getRadioButtonValue() {
-         var list = document.getElementsByName('myRadioButton');
-         for(var i=0;i<list.length;i++){
-            if(list[i].checked){
-               return list[i].value;
+      document.getElementById("saveBtn").onclick = function () {
+         // saveDataToFile(points);
+         var fileName = String(Date.now()) + ".txt";
+         content = "";
+         for(let i=0;i<arrVert.length;i++) {
+            content += "(" + String(arrVert[i]).replace("[", "").replace("]", "") + ")" + ";";
+            content += "(" + String(arrCol[i]).replace("[", "").replace("]", "") + ")" + ";";
+            content += "(" + arrType[i] + ")";
+            if(i != (arrVert.length - 1)) {
+               content += "//"
             }
+            
          }
-         return "";
-      }
+         save(fileName,content);
+         
+      };
+
+      
    </script>
 </body>
 
