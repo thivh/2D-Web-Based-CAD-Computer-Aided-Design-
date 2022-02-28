@@ -246,30 +246,44 @@ function readFileContent(file) {
 
     function processFileUpload(str) {
       var arrShape = str.split("][")
-      var temp;
+      var temp
       var res = []
       console.log(arrShape)
       var type = []
       var vertArr = []
+      var vertColor = []
       for (var i = 0; i < arrShape.length; i++) {
          var vertices = []
+         var colors = []
+         var isColor = false
          console.log(arrShape[i])
          temp = arrShape[i].replace(/[[]/g,"").replace(/]/g,"").replace(/[(]/g,"").replace(/[)]/g,"").split(",")
          console.log(temp)
          for (var j = 0; j < temp.length; j++) {
-            console.log(temp[j])
-            if (j == 0) {
-               type.push(temp[j])
+            if (isColor) {
+               colors.push(temp[j])
             } else {
-               vertices.push(temp[j])
+               if (j == 0) {
+                  type.push(temp[j])
+               } else {
+                  if (temp[j] == 'color') {
+                     isColor = true
+                  } else {
+                     vertices.push(temp[j])
+                  }
+               }
             }
+            
+               
 
          }
          
          vertArr.push(vertices)
+         vertColor.push(colors)
       }
          res.push(type)
          res.push(vertArr)
+         res.push(vertColor)
 
          return res
       }
@@ -288,6 +302,9 @@ function readFileContent(file) {
  
 
       function render() {
+         console.log(arrCol)
+         console.log(arrVert)
+         console.log(arrType)
          gl.clearColor(1.0, 1.0, 1.0, 1.0);
          gl.enable(gl.DEPTH_TEST);
          gl.clear(gl.COLOR_BUFFER_BIT);
@@ -408,6 +425,7 @@ function readFileContent(file) {
          console.log(verts)
          arrType = verts[0]
          arrVert = verts[1]
+         arrCol = verts[2]
       }
 
       function getRadioButtonValue() {
