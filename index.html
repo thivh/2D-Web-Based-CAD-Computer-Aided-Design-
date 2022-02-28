@@ -37,51 +37,70 @@
         margin: 10px;
         padding: 20px;
       }
+      
       </style>
 </head>
 
 <body>
-   <div class="flex-container">
+   <div class="">
          <canvas width="800" height="500" id="my_Canvas"></canvas>
 
          <div class="side-container">
-            <div id="form">
-               <label for="points">Insert polygon points:</label><br>
-               <textarea name="" id="points" cols="30" rows="7"></textarea><br><br>
-               <label for="color">Choose polygon color:</label>
-               <input type="color" id="color"><br><br>
-               <div>Mode</div>
-               <input type="radio" name="myRadioButton" value="Line Strip">Line Strip<BR>
-               <input type="radio" name="myRadioButton" value="Line Loop">Line Loop<BR>
-               <input type="radio" name="myRadioButton" value="Triangle Strip">Triangle Strip (Only for three or more points) <BR>
-               <input type="radio" name="myRadioButton" value="Triangle Fan">Triangle Fan  (Only for three or more points)
-               <br>
-               <br>
-               <input type="submit" id="submitBtn" value="Add"><br><br><br>
+            <div class="">
+                  <div>
+                        <h3>How to use "Shape Drawer"</h3>
+                        <hr>
+                        <br>
+                        
+                     </div>
+                  <div id="form">
+                        <h3>Insert polygon points:</h3>
+                        <hr>
+                        <br>
+                        <ol>
+                              <li>Insert points of your shape with the format (X1, Y1),(X2,Y2),...,(Xn,Yn)</li>
+                              <li>Pick a color for your shape.</li>
+                              <li>Choose a drawing method. Pick "Line Strip" or "Line Points" for drawing lines and "Triangle Strip" or "Triangle Fan" for drawing polygons.</li>
+                              <li>Click the "Add" button to draw your shape into the canvas.</li>
+                           </ol>
+                        <label for="points"></label><br>
+                        <textarea name="" id="points" cols="30" rows="7"></textarea><br><br>
+                        <input type="submit" id="submitBtn" value="Add"><br><br><br>
+                     </div>
+                     <div class="border-box">
+                         <h3>Import file:</h3>
+                           <hr>
+                           <br>
+                           <ol>
+                                 <li>Insert points of your shape with the format (X1, Y1),(X2,Y2),...,(Xn,Yn) within .txt file</li>
+                                 <li>Upload the file</li>
+                                 <li>Choose a drawing method. Pick "Line Strip" or "Line Points" for drawing lines and "Triangle Strip" or "Triangle Fan" for drawing polygons.</li>
+                                 <li>Click the "Draw Shapes" button to draw your shape into the canvas.</li>
+                              </ol>
+                           <textarea id="content-target"></textarea>
+                           <br>
+                           <input type="file" id="shape-upload" name="shape">
+                           <br><br>
+                           <input type="submit" id="shape-upload-btn" value="Draw Shapes">
+                     </div>
             </div>
+            
+
             <div class="side-elements">
-               <div>
-                  <h3>How to use "Shape Drawer"</h3>
-                  <hr>
-                  <br>
-                  <ol>
-                     <li>Insert points of your shape with the format (X1, Y1),(X2,Y2),...,(Xn,Yn)</li>
-                     <li>Pick a color for your shape.</li>
-                     <li>Choose a drawing method. Pick "Line Strip" or "Line Points" for drawing lines and "Triangle Strip" or "Triangle Fan" for drawing polygons.</li>
-                     <li>Click the "Add" button to draw your shape into the canvas.</li>
-                  </ol>
-               </div>
-               <br>
-               <div>
-                  <h3>Import file</h3>
-                  <hr>
-                  <br>
-                  <textarea id="content-target"></textarea>
-                  <br>
-                  <input type="file" id="shape-upload" name="shape">
-                  <br><br>
-                  <input type="submit" id="shape-upload-btn" value="Draw Shapes">
-               </div>
+                     <p>Mode</p>
+                     <div>
+                           <input type="radio" name="myRadioButton" value="Line Strip">Line Strip<BR>
+                              <input type="radio" name="myRadioButton" value="Line Loop">Line Loop<BR>
+                              <input type="radio" name="myRadioButton" value="Triangle Strip">Triangle Strip (Only for three or more points) <BR>
+                              <input type="radio" name="myRadioButton" value="Triangle Fan">Triangle Fan  (Only for three or more points)
+
+                     </div>
+                     <br>
+                     <br>
+                     <br>
+                     <p>Color</p>
+                     <label for="color">Choose polygon color:</label>
+                     <input type="color" id="color"><br><br>
             </div>
 
           
@@ -103,6 +122,7 @@ function getFile(event) {
 function placeFileContent(target, file) {
 	readFileContent(file).then(content => {
   	target.value = content
+
   }).catch(error => console.log(error))
 }
 
@@ -244,6 +264,7 @@ function readFileContent(file) {
         }
     }
 
+<<<<<<< HEAD
     function processFileUpload(str) {
       var arrShape = str.split("][")
       var temp
@@ -288,6 +309,8 @@ function readFileContent(file) {
          return res
       }
    
+=======
+>>>>>>> 66c432b0f2f4531aba69d188f1a3edfb798364b2
 
     function getMouseLocation(mouse, e) {
       var x    = e.clientX;
@@ -367,8 +390,7 @@ function readFileContent(file) {
          return shapes;
       }
 
-      function makeShape() {
-         var points = document.getElementById("points").value;
+      function makeShape(points) {
          var color = document.getElementById("color").value;
          inputPoint = inputToPoint(points);
          var colVertex = [];
@@ -409,7 +431,8 @@ function readFileContent(file) {
          changeType(e);
       }
       document.getElementById("submitBtn").onclick = function () {
-         makeShape();
+         var points = document.getElementById("points").value;
+         makeShape(points);
       };
 
       document.getElementById("my_Canvas").onmousemove = function (e) {
@@ -421,11 +444,16 @@ function readFileContent(file) {
       }
 
       document.getElementById('shape-upload-btn').onclick = function (e) {
+<<<<<<< HEAD
          var verts = processFileUpload(document.getElementById("content-target").value)
          console.log(verts)
          arrType = verts[0]
          arrVert = verts[1]
          arrCol = verts[2]
+=======
+         var points = (document.getElementById("content-target").value)
+         makeShape(points)
+>>>>>>> 66c432b0f2f4531aba69d188f1a3edfb798364b2
       }
 
       function getRadioButtonValue() {
