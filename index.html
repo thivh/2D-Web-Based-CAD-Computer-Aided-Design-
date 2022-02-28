@@ -76,9 +76,11 @@
                   <h3>Import file</h3>
                   <hr>
                   <br>
+                  <textarea id="content-target"></textarea>
+                  <br>
                   <input type="file" id="shape-upload" name="shape">
                   <br><br>
-                  <input type="submit" id="shape-upload-btn">
+                  <input type="submit" id="shape-upload-btn" value="Draw Shapes">
                </div>
             </div>
 
@@ -89,6 +91,29 @@
    
    <!-- <script type="module" src="line.js"></script> -->
    <script>
+function getFile(event) {
+	const input = event.target
+  if ('files' in input && input.files.length > 0) {
+	  placeFileContent(
+      document.getElementById('content-target'),
+      input.files[0])
+  }
+}
+
+function placeFileContent(target, file) {
+	readFileContent(file).then(content => {
+  	target.value = content
+  }).catch(error => console.log(error))
+}
+
+function readFileContent(file) {
+	const reader = new FileReader()
+  return new Promise((resolve, reject) => {
+    reader.onload = event => resolve(event.target.result)
+    reader.onerror = error => reject(error)
+    reader.readAsText(file)
+  })
+}
      function IsInRadius(X1,Y1,X2,Y2) {
       return (Math.abs(X1 - X2) <= 0.2) && (Math.abs(Y1-Y2) <= 0.2)
    }
@@ -219,6 +244,37 @@
         }
     }
 
+    function processFileUpload(str) {
+      var arrShape = str.split("][")
+      var temp;
+      var res = []
+      console.log(arrShape)
+      var type = []
+      var vertArr = []
+      for (var i = 0; i < arrShape.length; i++) {
+         var vertices = []
+         console.log(arrShape[i])
+         temp = arrShape[i].replace(/[[]/g,"").replace(/]/g,"").replace(/[(]/g,"").replace(/[)]/g,"").split(",")
+         console.log(temp)
+         for (var j = 0; j < temp.length; j++) {
+            console.log(temp[j])
+            if (j == 0) {
+               type.push(temp[j])
+            } else {
+               vertices.push(temp[j])
+            }
+
+         }
+         
+         vertArr.push(vertices)
+      }
+         res.push(type)
+         res.push(vertArr)
+
+         return res
+      }
+   
+
     function getMouseLocation(mouse, e) {
       var x    = e.clientX;
       var y    = e.clientY;
@@ -270,9 +326,9 @@
                gl.drawArrays(gl.LINE_STRIP, 0, nPoint);
             }
             else {
-               if (type === 'Line Strip')
+               if (type === 'Line Strip' || type == 'line')
                   gl.drawArrays(gl.LINE_STRIP, 0, nPoint);
-               else if (type === 'Triangle Strip')
+               else if (type === 'Triangle Strip' || type == 'polygon')
                   gl.drawArrays(gl.TRIANGLE_STRIP, 0, nPoint);
                else if (type === 'Line Loop')
                   gl.drawArrays(gl.LINE_LOOP, 0, nPoint);
@@ -341,6 +397,17 @@
 
       document.getElementById("my_Canvas").onmousemove = function (e) {
          getMouseLocation(mouse, e)
+      }
+
+      document.getElementById('shape-upload').onchange = function (e) {
+         getFile(e)
+      }
+
+      document.getElementById('shape-upload-btn').onclick = function (e) {
+         var verts = processFileUpload(document.getElementById("content-target").value)
+         console.log(verts)
+         arrType = verts[0]
+         arrVert = verts[1]
       }
 
       function getRadioButtonValue() {
