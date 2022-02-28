@@ -135,7 +135,7 @@ function readFileContent(file) {
   })
 }
      function IsInRadius(X1,Y1,X2,Y2) {
-      return (Math.abs(X1 - X2) <= 0.2) && (Math.abs(Y1-Y2) <= 0.2)
+      return (Math.abs(X1 - X2) <= 0.05) && (Math.abs(Y1-Y2) <= 0.05)
    }
       function getMouseCoordinates(e) {
          var x    = e.clientX;
@@ -264,53 +264,6 @@ function readFileContent(file) {
         }
     }
 
-<<<<<<< HEAD
-    function processFileUpload(str) {
-      var arrShape = str.split("][")
-      var temp
-      var res = []
-      console.log(arrShape)
-      var type = []
-      var vertArr = []
-      var vertColor = []
-      for (var i = 0; i < arrShape.length; i++) {
-         var vertices = []
-         var colors = []
-         var isColor = false
-         console.log(arrShape[i])
-         temp = arrShape[i].replace(/[[]/g,"").replace(/]/g,"").replace(/[(]/g,"").replace(/[)]/g,"").split(",")
-         console.log(temp)
-         for (var j = 0; j < temp.length; j++) {
-            if (isColor) {
-               colors.push(temp[j])
-            } else {
-               if (j == 0) {
-                  type.push(temp[j])
-               } else {
-                  if (temp[j] == 'color') {
-                     isColor = true
-                  } else {
-                     vertices.push(temp[j])
-                  }
-               }
-            }
-            
-               
-
-         }
-         
-         vertArr.push(vertices)
-         vertColor.push(colors)
-      }
-         res.push(type)
-         res.push(vertArr)
-         res.push(vertColor)
-
-         return res
-      }
-   
-=======
->>>>>>> 66c432b0f2f4531aba69d188f1a3edfb798364b2
 
     function getMouseLocation(mouse, e) {
       var x    = e.clientX;
@@ -444,16 +397,8 @@ function readFileContent(file) {
       }
 
       document.getElementById('shape-upload-btn').onclick = function (e) {
-<<<<<<< HEAD
-         var verts = processFileUpload(document.getElementById("content-target").value)
-         console.log(verts)
-         arrType = verts[0]
-         arrVert = verts[1]
-         arrCol = verts[2]
-=======
          var points = (document.getElementById("content-target").value)
          makeShape(points)
->>>>>>> 66c432b0f2f4531aba69d188f1a3edfb798364b2
       }
 
       function getRadioButtonValue() {
